@@ -1,8 +1,17 @@
 The E-Wallet sample is a simple web application demonstrating an electronic
-bank account which can be funded using a credit card. This example first shows
-how to deploy the original E-Wallet application, then shows how to convert the
-E-Wallet application to run in the IBM Cloud Data Shield environment, and
-deploy in that environment.
+bank account which can be funded using a credit card. The E-Wallet applications
+consists of three containers, which are available on Docker Hub:
+
+ * [The E-Wallet application](https://hub.docker.com/r/fortanix/ewallet/)
+ * [MariaDB database](https://hub.docker.com/r/fortanix/ewallet-db/)
+ * [NGINX frontend proxy](https://hub.docker.com/r/fortanix/ewallet-nginx/)
+
+This example first shows how to deploy the original E-Wallet application.
+It then shows how you can use IBM Cloud Data Shield to run the E-Wallet
+application protected with Runtime Encryption.
+
+To try the E-Wallet application with Data Shield, you will need to have
+an IBM Kubernetes Service cluster, with Data Shield installed.
 
 # Deploying the E-Wallet Application
 
