@@ -38,9 +38,9 @@ Use the following `curl` commands to convert the E-Wallet containers for Data
 Shield. Replace `<your-registry>` with a registry your converter has push
 access to. Note that the conversion process can take several minutes.
 
-    curl -k -H 'Content-Type: application/json' -d '{"inputImageName": "fortanix/ewallet:20181031-4732528", "outputImageName": "<your-registry>/ewallet-sgx:20181031-4732528"}' https://datashield-enclaveos-converter.default.svc.cluster.local/v1/convert-image
-    curl -k -H 'Content-Type: application/json' -d '{"inputImageName": "fortanix/ewallet-db:20181031-4732528", "outputImageName": "<your-registry>/ewallet-db-sgx:20181031-4732528"}' https://datashield-enclaveos-converter.default.svc.cluster.local/v1/convert-image
-    curl -k -H 'Content-Type: application/json' -d '{"inputImageName": "fortanix/ewallet-nginx:20181031-4732528", "outputImageName": "<your-registry>/ewallet-nginx-sgx:20181031-4732528"}' https://datashield-enclaveos-converter.default.svc.cluster.local/v1/convert-image
+    curl -k -H 'Content-Type: application/json' -d '{"inputImageName": "fortanix/ewallet:20181113-28536a8", "outputImageName": "<your-registry>/ewallet-sgx:20181113-28536a8"}' https://datashield-enclaveos-converter.default.svc.cluster.local/v1/convert-image
+    curl -k -H 'Content-Type: application/json' -d '{"inputImageName": "fortanix/ewallet-db:20181113-28536a8", "outputImageName": "<your-registry>/ewallet-db-sgx:20181113-28536a8"}' https://datashield-enclaveos-converter.default.svc.cluster.local/v1/convert-image
+    curl -k -H 'Content-Type: application/json' -d '{"inputImageName": "fortanix/ewallet-nginx:20181113-28536a8", "outputImageName": "<your-registry>/ewallet-nginx-sgx:20181113-28536a8"}' https://datashield-enclaveos-converter.default.svc.cluster.local/v1/convert-image
 
 Obtain the file `ewallet-data-shield.yaml` and replace `<your-registry>` as
 appropriate, then run:

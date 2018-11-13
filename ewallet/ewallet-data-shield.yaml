@@ -22,7 +22,7 @@ metadata:
 spec:
   containers:
   - name: ewallet-db-sgx
-    image: <your-registry>/ewallet-db-sgx:20181031-4732528
+    image: <your-registry>/ewallet-db-sgx:20181113-28536a8
     volumeMounts:
     - mountPath: /dev/isgx
       name: isgx
@@ -35,7 +35,7 @@ spec:
       name: mysql
       protocol: TCP
   - name: ewallet-sgx
-    image: <your-registry>/ewallet-sgx:20181031-4732528
+    image: <your-registry>/ewallet-sgx:20181113-28536a8
     volumeMounts:
     - mountPath: /dev/isgx
       name: isgx
@@ -53,7 +53,7 @@ spec:
     - name: MYSQL_ROOT_PASSWORD
       value: password
   - name: ewallet-nginx-sgx
-    image: <your-registry>/ewallet-nginx-sgx:20181031-4732528
+    image: <your-registry>/ewallet-nginx-sgx:20181113-28536a8
     volumeMounts:
     - mountPath: /dev/isgx
       name: isgx
