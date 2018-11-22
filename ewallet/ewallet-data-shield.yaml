@@ -9,9 +9,9 @@ spec:
   selector:
     app: ewallet-sgx
   ports:
-    - name: http
-      port: 80
-      targetPort: 80
+    - name: https
+      port: 443
+      targetPort: 443
 ---
 kind: Pod
 apiVersion: v1
@@ -20,9 +20,15 @@ metadata:
   labels:
     app: ewallet-sgx
 spec:
+  hostAliases:
+  - ip: "127.0.0.1"
+    hostnames:
+    - "ewallet-db-sgx"
+    - "ewallet-app-sgx"
   containers:
   - name: ewallet-db-sgx
-    image: <your-registry>/ewallet-db-sgx:20181113-28536a8
+    image: registry.ng.bluemix.net/datashield-dev/ewallet-db-sgx:20181214-803cab7
+    imagePullPolicy: Always
     volumeMounts:
     - mountPath: /dev/isgx
       name: isgx
@@ -34,8 +40,18 @@ spec:
     - containerPort: 3306
       name: mysql
       protocol: TCP
-  - name: ewallet-sgx
-    image: <your-registry>/ewallet-sgx:20181113-28536a8
+    env:
+    - name: EWALLET_USER
+      value: ewallet-app-sgx
+    - name: NODE_IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.hostIP
+    - name: NODE_AGENT_BASE_URL
+      value: http://$(NODE_IP):9092/v1
+  - name: ewallet-app-sgx
+    image: registry.ng.bluemix.net/datashield-dev/ewallet-sgx:20181214-803cab7
+    imagePullPolicy: Always
     volumeMounts:
     - mountPath: /dev/isgx
       name: isgx
@@ -49,11 +65,26 @@ spec:
       protocol: TCP
     env:
     - name: MYSQL_HOST
-      value: 127.0.0.1
-    - name: MYSQL_ROOT_PASSWORD
+      value: ewallet-db-sgx
+    - name: MYSQL_USER
+      value: ewallet
+    - name: MYSQL_PASSWORD
       value: password
+    - name: SERVER_CERT_FILE
+      value: /etc/ewallet/cert.pem
+    - name: SERVER_KEY_FILE
+      value: /etc/ewallet/key.pem
+    - name: CA_CERT_FILE
+      value: /etc/ssl/certs/ca-cert.pem
+    - name: NODE_IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.hostIP
+    - name: NODE_AGENT_BASE_URL
+      value: http://$(NODE_IP):9092/v1
   - name: ewallet-nginx-sgx
-    image: <your-registry>/ewallet-nginx-sgx:20181113-28536a8
+    image: registry.ng.bluemix.net/datashield-dev/ewallet-nginx-sgx:20181214-803cab7
+    imagePullPolicy: Always
     volumeMounts:
     - mountPath: /dev/isgx
       name: isgx
@@ -62,10 +93,18 @@ spec:
     - mountPath: /var/run/aesmd/aesm.socket
       name: aesm-socket
     ports:
-    - containerPort: 80
-      hostPort: 80
-      name: http
+    - containerPort: 443
+      name: https
       protocol: TCP
+    env:
+    - name: PROXY_PASS_URL
+      value: https://ewallet-app-sgx:9090/
+    - name: NODE_IP
+      valueFrom:
+        fieldRef:
+          fieldPath: status.hostIP
+    - name: NODE_AGENT_BASE_URL
+      value: http://$(NODE_IP):9092/v1
   volumes:
   - name: isgx
     hostPath:

@@ -9,9 +9,9 @@ spec:
   selector:
     app: ewallet
   ports:
-    - name: http
-      port: 80
-      targetPort: 80
+    - name: https
+      port: 443
+      targetPort: 443
 ---
 kind: Pod
 apiVersion: v1
@@ -20,28 +20,146 @@ metadata:
   labels:
     app: ewallet
 spec:
+  hostAliases:
+  - ip: "127.0.0.1"
+    hostnames:
+    - "ewallet-db"
+    - "ewallet-app"
+  volumes:
+    - name: ewallet-nginx-tls
+      secret:
+        secretName: ewallet-nginx-tls
+    - name: ewallet-app-tls
+      secret:
+        secretName: ewallet-app-tls
+    - name: ewallet-db-tls
+      secret:
+        secretName: ewallet-db-tls
   containers:
   - name: ewallet-db
-    image: fortanix/ewallet-db:20181031-4732528
+    image: fortanix/ewallet-db:20181205-8de6405
+    volumeMounts:
+    - name: ewallet-db-tls
+      mountPath: /etc/mysql/server-cert.pem
+      subPath: tls.crt
+      readOnly: true
+    - name: ewallet-db-tls
+      mountPath: /etc/mysql/server-key.pem
+      subPath: tls.key
+      readOnly: true
+    - name: ewallet-app-tls
+      mountPath: /etc/mysql/cacert.pem
+      subPath: tls.crt
+      readOnly: true
     ports:
     - containerPort: 3306
       name: mysql
       protocol: TCP
-  - name: ewallet
-    image: fortanix/ewallet:20181031-4732528
+    env:
+    - name: EWALLET_USER
+      value: ewallet-app
+    - name: EWALLET_ORG
+      value: cert-manager
+  - name: ewallet-app
+    image: fortanix/ewallet:20181205-8de6405
+    volumeMounts:
+    - name: ewallet-app-tls
+      mountPath: /etc/ewallet/cert.pem
+      subPath: tls.crt
+      readOnly: true
+    - name: ewallet-app-tls
+      mountPath: /etc/ewallet/key.pem
+      subPath: tls.key
+      readOnly: true
+    - name: ewallet-db-tls
+      mountPath: /etc/ssl/certs/ca-cert.pem
+      subPath: tls.crt
+      readOnly: true
     ports:
     - containerPort: 5000
-      name: ewallet
+      name: ewallet-app
       protocol: TCP
     env:
     - name: MYSQL_HOST
-      value: 127.0.0.1
-    - name: MYSQL_ROOT_PASSWORD
+      value: ewallet-db
+    - name: MYSQL_USER
+      value: ewallet
+    - name: MYSQL_PASSWORD
       value: password
+    - name: SERVER_CERT_FILE
+      value: /etc/ewallet/cert.pem
+    - name: SERVER_KEY_FILE
+      value: /etc/ewallet/key.pem
+    - name: CA_CERT_FILE
+      value: /etc/ssl/certs/ca-cert.pem
   - name: ewallet-nginx
-    image: fortanix/ewallet-nginx:20181031-4732528
+    image: fortanix/ewallet-nginx:20181205-8de6405
+    volumeMounts:
+    - name: ewallet-nginx-tls
+      mountPath: /etc/nginx/nginx-cert.pem
+      subPath: tls.crt
+      readOnly: true
+    - name: ewallet-nginx-tls
+      mountPath: /etc/nginx/nginx-key.pem
+      subPath: tls.key
+      readOnly: true
+    - name: ewallet-app-tls
+      mountPath: /etc/nginx/cacert.crt
+      subPath: tls.crt
+      readOnly: true
     ports:
-    - containerPort: 80
-      hostPort: 80
-      name: http
+    - containerPort: 443
+      name: https
       protocol: TCP
+    env:
+    - name: PROXY_PASS_URL
+      value: https://ewallet-app:9090
+---
+kind: Issuer
+apiVersion: certmanager.k8s.io/v1alpha1
+metadata:
+  name: ewallet-issuer
+spec:
+  selfSigned: {}
+---
+kind: Certificate
+apiVersion: certmanager.k8s.io/v1alpha1
+metadata:
+  name: ewallet-cert
+  labels:
+    app: ewallet
+spec:
+  secretName: ewallet-app-tls
+  commonName: ewallet-app
+  isCA: true
+  issuerRef:
+    name: ewallet-issuer
+    kind: Issuer
+---
+kind: Certificate
+apiVersion: certmanager.k8s.io/v1alpha1
+metadata:
+  name: ewallet-db-cert
+  labels:
+    app: ewallet
+spec:
+  secretName: ewallet-db-tls
+  commonName: ewallet-db
+  isCA: true
+  issuerRef:
+    name: ewallet-issuer
+    kind: Issuer
+---
+kind: Certificate
+apiVersion: certmanager.k8s.io/v1alpha1
+metadata:
+  name: ewallet-nginx-cert
+  labels:
+    app: ewallet
+spec:
+  secretName: ewallet-nginx-tls
+  commonName: ewallet
+  isCA: true
+  issuerRef:
+    name: ewallet-issuer
+    kind: Issuer
