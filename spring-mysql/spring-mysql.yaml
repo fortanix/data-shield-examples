@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-mysql
+  labels:
+    app: spring-mysql
+spec:
+  type: LoadBalancer
+  selector:
+    app: spring-mysql
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: spring-mysql
+  labels:
+    app: spring-mysql
+spec:
+  containers:
+  - name: spring-mysql-db
+    image: fortanix/spring-mysql-db:20190206-220832d
+    ports:
+    - containerPort: 3306
+      name: mysql
+      protocol: TCP
+  - name: spring-mysql-app
+    image: fortanix/spring-mysql-app:20190206-220832d
+    ports:
+    - containerPort: 8080
+      name: spring-mysql
+      protocol: TCP
