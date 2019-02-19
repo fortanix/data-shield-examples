@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: open-liberty-rest-intro
+  labels:
+    app: open-liberty-rest-intro
+spec:
+  type: LoadBalancer
+  selector:
+    app: open-liberty-rest-intro
+  ports:
+    - name: http
+      port: 80
+      targetPort: 9080
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: open-liberty-rest-intro
+  labels:
+    app: open-liberty-rest-intro
+spec:
+  containers:
+  - name: open-liberty-rest-intro
+    image: fortanix/open-liberty-rest-intro:20190219-423b695
+    ports:
+    - containerPort: 9080
+      name: http
+      protocol: TCP
