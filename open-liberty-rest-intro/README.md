@@ -38,7 +38,7 @@ Use the following `curl` commands to convert the sample container for Data
 Shield. Replace `<your-registry>` with a registry your converter has push
 access to. Note that the conversion process can take several minutes.
 
-    curl -H 'Content-Type: application/json' -d '{"inputImageName": "fortanix/open-liberty-rest-intro:20190219-423b695", "outputImageName": "<your-registry>/open-liberty-rest-intro-sgx:20190219-423b695", "threads": 128, "javaMode": "LIBERTY-JRE" }' -H "Authorization: Basic $token"  https://enclave-manager.<ingress-domain>/api/v1/tools/converter/convert-app
+    curl -H 'Content-Type: application/json' -d '{"inputImageName": "fortanix/open-liberty-rest-intro:20190703-8ef3602", "outputImageName": "<your-registry>/open-liberty-rest-intro-sgx:20190219-423b695", "threads": 128, "javaMode": "LIBERTY-JRE", "rwDirs" : ["/opt/ol/wlp/output", "/logs"] }' -H "Authorization: Basic $token"  https://enclave-manager.<ingress-domain>/api/v1/tools/converter/convert-app
 
 Obtain the file `open-liberty-rest-intro-data-shield.yaml` and replace
 `<your-registry>` as appropriate, then run:
