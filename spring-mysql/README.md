@@ -42,8 +42,8 @@ Use the following `curl` commands to convert the Spring-MySQL sample containers
 for Data Shield. Replace `<your-registry>` with a registry your converter has
 push access to. Note that the conversion process can take several minutes.
 
-    curl -H 'Content-Type: application/json' -d '{"inputImageName": "fortanix/spring-mysql-app:20190206-220832d", "outputImageName": "<your-registry>/spring-mysql-app-sgx:20190206-220832d", "threads": 128, "manifestOptions": { "loader.env.MALLOC_ARENA_MAX": "1" } }' -H "Authorization: Basic $token"  https://enclave-manager.<ingress-domain>/api/v1/tools/converter/convert-app
-    curl -H 'Content-Type: application/json' -d '{"inputImageName": "fortanix/spring-mysql-db:20190206-220832d", "outputImageName": "<your-registry>/spring-mysql-db-sgx:20190206-220832d", "threads": 80}' -H "Authorization: Basic $token"  https://enclave-manager.<ingress-domain>/api/v1/tools/converter/convert-app
+    curl -H 'Content-Type: application/json' -d '{"inputImageName": "fortanix/spring-mysql-app:20190703-8ef3602", "outputImageName": "<your-registry>/spring-mysql-app-sgx:20190206-220832d", "threads": 128, "javaMode" : "OPENJDK", "encryptedDirs" : ["/tmp"] }' -H "Authorization: Basic $token"  https://enclave-manager.<ingress-domain>/api/v1/tools/converter/convert-app
+    curl -H 'Content-Type: application/json' -d '{"inputImageName": "fortanix/spring-mysql-db:20190703-8ef3602", "outputImageName": "<your-registry>/spring-mysql-db-sgx:20190206-220832d", "threads": 80, "encryptedDirs" : ["/var/lib/_mysql", "/etc/mysql","/tmp","/run/mysqld"]}' -H "Authorization: Basic $token"  https://enclave-manager.<ingress-domain>/api/v1/tools/converter/convert-app
 
 Obtain the file `spring-mysql-data-shield.yaml` and replace `<your-registry>` as
 appropriate, then run:
